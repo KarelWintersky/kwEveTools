@@ -1,4 +1,5 @@
 <?php
+require_once('kw.kwt.php');
 
 function convertSymbols($str)
 {
@@ -66,14 +67,15 @@ function getWallet($id, $key, $charid, $count=-1, $from = -1 )
 
             $full_wallet[ $refid ] = array(
                 'id'            => (string)$wallet_record['refID'],
-                'date'          => (string)$wallet_record['date'],
+                'datetime'          => (string)$wallet_record['date'],
                 'from'          => (string)$wallet_record['ownerName1'],
                 'fromid'        => (int)$wallet_record['ownerID1'],
                 'to'            => (string)$wallet_record['ownerName2'],
                 'toid'        => (int)$wallet_record['ownerID2'],
                 'amount'        => (int)$wallet_record['amount'],
-                'reason'        => convertSymbols($wallet_record['reason'])."&nbsp;",
-                'type'          => (string)$wallet_record['refTypeID'] // see https://api.eveonline.com/eve/RefTypes.xml.aspx
+                //@todo: string number_format ( float $number , int $decimals = 0 , string $dec_point = '.' , string $thousands_sep = ',' )
+                'reason'        => ($wallet_record['reason'] != "") ? convertSymbols($wallet_record['reason']) : "&nbsp;",
+                'type'          => trim((string)$wallet_record['refTypeID']) // see https://api.eveonline.com/eve/RefTypes.xml.aspx
             );
         }
     }
@@ -92,34 +94,24 @@ function filterWallet($walletdata, $toid, $transaction_type)
     return $outwallet;
 }
 
-function viewWalletAsTable( $data )
+function viewWalletRow( $record )
 {
-    // $s = '<table>';
-    $cnt = count($data);
-    $s = "
-<tr>
-    <th>id</th>
-    <th>date</th>
-    <th>from</th>
-    <th>to</th>
-    <th>amount {$cnt}</th>
-    <th>reason</th>
-</tr>";
-    foreach ($data as $rid => $record) {
-        if ($record['type'] == 10)
-            $s .= sprintf("
-<tr>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-</tr>", $record['id'], $record['date'], $record['from'], $record['to'], $record['amount'], $record['reason']);
-    }
-    // $s .= '</table>';
-    return $s;
+    $html = new kwt('assets/ogb.table.row.html');
+    $html->override( array (
+        'date'  => $record['datetime'],
+        'from'  => $record['from'],
+        'amount'=> $record['amount'],
+        'reason'=> $record['reason']
+    ));
+    return $html->get();
 }
 
+function saveLogToFile($filename, $data)
+{
+    $fh = fopen($filename, 'a+');
+    $data['request_time'] = date("d F Y G:i:s");
+    fwrite($fh, json_encode($data)."\r\n");
+    fclose($fh);
+}
 
 ?>

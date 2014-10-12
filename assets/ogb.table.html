@@ -1,0 +1,18 @@
+<table border="1" id="exporttable">
+    <tr>
+        <th>Date/Time</th>
+        <th>From</th>
+        <th>Player donation (isk)</th>
+        <th>Reason</th>
+    </tr>
+    {%____wallet_rows%}
+    <tr><td colspan="4"><hr></td></tr>
+    <tr>
+        <td colspan="2">Total transactions:</td>
+        <th colspan="2"><strong>{%____wallet_totalcount%}</strong></th>
+    </tr>
+    <tr>
+        <td colspan="2">Total sum:</td>
+        <th colspan="2"> <strong>{%____wallet_totalamount%}</strong></th>
+    </tr>
+</table>
