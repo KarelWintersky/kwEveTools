@@ -1,37 +1,6 @@
 <?php
-require_once('core/kw.EveAPI.php');
-
-function isAjaxCall()
-{
-    return ((!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) && (strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
-}
-
-function getCharacters($id, $key)
-{
-    $chars = array();
-    $request = "https://api.eveonline.com/account/characters.xml.aspx?keyID={$id}&vCode={$key}";
-    $content = file_get_contents($request);
-
-    $xml = new SimpleXMLElement($content);
-    $chars = array(
-        'state' => 'ok',
-        'error' => 0
-    );
-
-    foreach ( $xml->result->rowset->row as $character ) {
-        $chars['data'][] = array(
-            'type'  => 'option',
-            'value' => (string)$character['characterID'],
-            'text'  => (string)$character['name']
-        );
-    }
-    return $chars;
-}
-
-function getCharacterNameByID($id)
-{
-
-}
+require_once('core/kw.core.php');
+require_once('core/eveapi.php');
 
 if (isAjaxCall()) {
     $actor = $_GET['actor'];
@@ -48,10 +17,16 @@ if (isAjaxCall()) {
         }
         case 'getwallet': {
             $cid = $_GET['cid'];
-            getCharacterNameByID($id);
+            // $charname = getCharacterNameByID($cid);
 
+            $wallet = getWallet($_GET['key'], $_GET['vcode'], $cid);
+            $wallet = filterWallet( $wallet , $cid, 10 );
 
-            print_r( $_GET );
+            $out = '<table border="1">'.viewWalletAsTable($wallet).'</table>';
+
+            print($out);
+
+            // print_r( $wallet );
             break;
         }
     }
@@ -63,6 +38,8 @@ if (isAjaxCall()) {
 <head>
     <meta charset="UTF-8">
     <title>OGB Wallet transactions log</title>
+    <link rel="stylesheet" href="assets/ogb.wallet.css">
+
     <script type="text/javascript" src="assets/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="assets/kw.options.js"></script>
     <script type="text/javascript">
@@ -118,29 +95,7 @@ if (isAjaxCall()) {
 
         });
     </script>
-    <style>
-        fieldset {
-            border: 1px navy solid;
-        }
-        dt {
-            float: left;
-            width: 80px;
-            text-align: right;
-            padding-right: 5px;
-            min-height: 1px;
-        }
-        dd {
-            position: relative;
-            top: -1px;
-            margin-bottom: 10px;
-        }
-        select {
-            width: 200px;
-        }
-        #actor-clear {
-            margin-left: 10em;
-        }
-    </style>
+
 </head>
 <body>
 

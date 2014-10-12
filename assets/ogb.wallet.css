@@ -1,0 +1,21 @@
+fieldset {
+    border: 1px navy solid;
+}
+dt {
+    float: left;
+    width: 80px;
+    text-align: right;
+    padding-right: 5px;
+    min-height: 1px;
+}
+dd {
+    position: relative;
+    top: -1px;
+    margin-bottom: 10px;
+}
+select {
+    width: 200px;
+}
+#actor-clear {
+    margin-left: 10em;
+}
